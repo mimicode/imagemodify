@@ -1,4 +1,4 @@
-package imagesha1
+package imagemodify
 
 import (
 	"crypto/sha1"
@@ -37,9 +37,9 @@ type MetadataModifier interface {
 	GetImageMetadata(imagePath string) (*ImageMetadata, error)
 }
 
-// 扩展现有的ImageSHA1Modifier以支持元数据修改
-// ModifyImageMetadata 通过修改元数据来改变图片SHA1
-func (m *ImageSHA1Modifier) ModifyImageMetadata(imagePath string, metadata *ImageMetadata) (string, error) {
+// 扩展现有的ImageModifier以支持元数据修改
+// ModifyImageMetadata 通过修改元数据来改变图片的SHA1值
+func (m *ImageModifier) ModifyImageMetadata(imagePath string, metadata *ImageMetadata) (string, error) {
 	// 检查文件是否存在
 	if _, err := os.Stat(imagePath); os.IsNotExist(err) {
 		return "", fmt.Errorf("图片文件不存在: %s", imagePath)
@@ -87,7 +87,7 @@ func (m *ImageSHA1Modifier) ModifyImageMetadata(imagePath string, metadata *Imag
 }
 
 // GetImageMetadata 获取图片的元数据信息
-func (m *ImageSHA1Modifier) GetImageMetadata(imagePath string) (*ImageMetadata, error) {
+func (m *ImageModifier) GetImageMetadata(imagePath string) (*ImageMetadata, error) {
 	// 检查文件是否存在
 	if _, err := os.Stat(imagePath); os.IsNotExist(err) {
 		return nil, fmt.Errorf("图片文件不存在: %s", imagePath)

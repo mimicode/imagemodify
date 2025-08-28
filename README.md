@@ -1,4 +1,4 @@
-# ImageSHA1 - Go图片SHA1修改库
+# ImageModify - Go图片SHA1修改库
 
 这是一个Go语言编写的图片SHA1值修改库，可以在不改变图片显示内容、宽高和格式的情况下修改图片文件的SHA1值。
 
@@ -8,8 +8,9 @@
 - ✅ 直接在原图上修改，不改变图片尺寸和格式
 - ✅ 不影响图片内容显示
 - ✅ 每次执行都会生成不同的SHA1值
-- ✅ 支持两种修改方式：
+- ✅ 支持三种修改方式：
   - **随机数据修改**：快速改变SHA1值
+  - **像素微调修改**：通过微调边缘像素亮度改变SHA1（最精妙的方式）
   - **元数据修改**：通过修改有意义的元数据改变SHA1值
 - ✅ 丰富的元数据支持：作者、版权、拍摄时间、地点、相机信息等
 - ✅ 简单易用的API接口
@@ -17,10 +18,16 @@
 ## 工作原理
 
 ### JPEG格式
-通过在JPEG文件中插入注释段（Comment Segment）来改变文件内容。JPEG格式允许插入注释段而不影响图片的显示效果。
+- **随机数据模式**：通过在JPEG文件中插入注释段（Comment Segment）来改变文件内容。
+- **像素微调模式**：通过微调边缘像素的RGB值（±2级别）来改变图像数据。
+- **元数据模式**：通过修改EXIF元数据信息来改变文件内容。
 
 ### PNG格式
-通过在PNG文件中插入文本块（tEXt chunk）来改变文件内容。PNG格式的文本块不会影响图片的渲染和显示。
+- **随机数据模式**：通过在PNG文件中插入文本块（tEXt chunk）来改变文件内容。
+- **像素微调模式**：通过微调边缘像素的RGB值（±2级别）来改变图像数据。
+- **元数据模式**：通过在PNG文件中插入元数据文本块来改变文件内容。
+
+所有方式都不会影响图片的显示效果和视觉质量。
 
 ## 安装使用
 
@@ -37,8 +44,8 @@ import (
 )
 
 func main() {
-    // 创建SHA1修改器
-    modifier := imagemodify.NewImageSHA1Modifier()
+    // 创建图片修改器
+    modifier := imagemodify.NewImageModifier()
     
     // 修改图片SHA1（使用随机数据）
     newSHA1, err := modifier.ModifyImageSHA1("path/to/your/image.jpg")
@@ -50,7 +57,31 @@ func main() {
 }
 ```
 
-#### 2. 元数据修改（智能模式）
+#### 2. 像素微调修改（精妙模式）
+
+```go
+package main
+
+import (
+    "fmt"
+    "github.com/mimicode/imagemodify"
+)
+
+func main() {
+    // 创建图片修改器
+    modifier := imagemodify.NewImageModifier()
+    
+    // 通过像素微调修改SHA1（最精妙的方式）
+    newSHA1, err := modifier.ModifyImageSHA1ByPixel("path/to/your/image.jpg")
+    if err != nil {
+        panic(err)
+    }
+    
+    fmt.Printf("新的SHA1值: %s\n", newSHA1)
+}
+```
+
+#### 3. 元数据修改（智能模式）
 
 ```go
 package main
@@ -62,8 +93,8 @@ import (
 )
 
 func main() {
-    // 创建SHA1修改器
-    modifier := imagemodify.NewImageSHA1Modifier()
+    // 创建图片修改器
+    modifier := imagemodify.NewImageModifier()
     
     // 设置元数据
     now := time.Now()
@@ -105,6 +136,18 @@ func main() {
 go run example/main.go path/to/your/image.jpg
 ```
 
+#### 多模式统一示例（推荐）
+```bash
+# 随机数据修改模式
+go run example/pixel_modify_example.go path/to/your/image.jpg random
+
+# 像素微调修改模式（最精妙）
+go run example/pixel_modify_example.go path/to/your/image.jpg pixel
+
+# 元数据修改模式
+go run example/pixel_modify_example.go path/to/your/image.jpg metadata
+```
+
 #### 元数据修改示例
 ```bash
 # 显示当前元数据
@@ -125,13 +168,13 @@ go run example/verify_image.go path/to/your/image.jpg
 
 ## API 文档
 
-### ImageSHA1Modifier
+### ImageModifier
 
 主要的图片SHA1修改器结构体。
 
 #### 方法
 
-##### `NewImageSHA1Modifier() *ImageSHA1Modifier`
+##### `NewImageModifier() *ImageModifier`
 创建新的图片SHA1修改器实例。
 
 ##### `ModifyImageSHA1(imagePath string) (string, error)`
@@ -143,6 +186,16 @@ go run example/verify_image.go path/to/your/image.jpg
 **返回值:**
 - `string`: 修改后的SHA1值（十六进制字符串）
 - `error`: 错误信息，如果操作成功则为nil
+
+##### `ModifyImageSHA1ByPixel(imagePath string) (string, error)`
+通过微调边缘像素亮度修改指定路径图片的SHA1值（最精妙的方式）。
+
+**参数:**
+- `imagePath`: 图片文件的完整路径
+
+**返回值:**
+- `string`: 修改后的SHA1值（十六进制字符串）
+- `error`: 错误信息，如枟操作成功则为nil
 
 ##### `ModifyImageMetadata(imagePath string, metadata *ImageMetadata) (string, error)`
 通过修改元数据来改变图片的SHA1值。
@@ -230,6 +283,21 @@ type ImageMetadata struct {
 
 ## 示例输出
 
+### 像素微调模式（推荐）
+```
+📋 图片信息: example.jpg
+🔍 原始SHA1: a1b2c3d4e5f6789012345678901234567890abcd
+🔧 修改方式: 像素微调修改
+✨ 新的SHA1: 1234567890abcdef1234567890abcdef12345678
+✅ SHA1值已成功修改
+📈 SHA1差异字符数: 38/40
+💾 文件大小: 123456 字节
+📁 文件格式: .jpg
+
+🎯 所有方式都不会影响图片的视觉显示效果！
+```
+
+### 传统模式
 ```
 原始SHA1: a1b2c3d4e5f6789012345678901234567890abcd
 新的SHA1: 1234567890abcdef1234567890abcdef12345678

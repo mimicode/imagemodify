@@ -1,4 +1,4 @@
-package imagesha1
+package imagemodify
 
 import (
 	"encoding/json"
@@ -7,7 +7,7 @@ import (
 )
 
 // modifyJPEGMetadata 修改JPEG图片的元数据（通过注释段）
-func (m *ImageSHA1Modifier) modifyJPEGMetadata(data []byte, metadata *ImageMetadata) ([]byte, error) {
+func (m *ImageModifier) modifyJPEGMetadata(data []byte, metadata *ImageMetadata) ([]byte, error) {
 	// 移除现有的注释段
 	cleanData := m.removeJPEGComments(data)
 
@@ -22,7 +22,7 @@ func (m *ImageSHA1Modifier) modifyJPEGMetadata(data []byte, metadata *ImageMetad
 }
 
 // removeJPEGComments 移除现有的注释段
-func (m *ImageSHA1Modifier) removeJPEGComments(data []byte) []byte {
+func (m *ImageModifier) removeJPEGComments(data []byte) []byte {
 	if len(data) < 4 {
 		return data
 	}
@@ -80,7 +80,7 @@ func (m *ImageSHA1Modifier) removeJPEGComments(data []byte) []byte {
 }
 
 // getJPEGMetadata 获取JPEG图片的元数据（从注释段）
-func (m *ImageSHA1Modifier) getJPEGMetadata(imagePath string) (*ImageMetadata, error) {
+func (m *ImageModifier) getJPEGMetadata(imagePath string) (*ImageMetadata, error) {
 	data, err := os.ReadFile(imagePath)
 	if err != nil {
 		return nil, fmt.Errorf("读取文件失败: %v", err)
@@ -105,7 +105,7 @@ func (m *ImageSHA1Modifier) getJPEGMetadata(imagePath string) (*ImageMetadata, e
 }
 
 // extractJPEGComment 提取JPEG注释段内容
-func (m *ImageSHA1Modifier) extractJPEGComment(data []byte) []byte {
+func (m *ImageModifier) extractJPEGComment(data []byte) []byte {
 	if len(data) < 4 {
 		return nil
 	}

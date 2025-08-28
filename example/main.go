@@ -24,7 +24,7 @@ func main() {
 	}
 
 	// 创建SHA1修改器
-	modifier := imagemodify.NewImageSHA1Modifier()
+	modifier := imagemodify.NewImageModifier()
 
 	// 获取原始SHA1值
 	originalSHA1, err := modifier.GetImageSHA1(imagePath)

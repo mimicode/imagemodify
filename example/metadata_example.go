@@ -36,7 +36,7 @@ func main() {
 	}
 
 	// 创建SHA1修改器
-	modifier := imagemodify.NewImageSHA1Modifier()
+	modifier := imagemodify.NewImageModifier()
 
 	switch operation {
 	case "show":
@@ -52,7 +52,7 @@ func main() {
 }
 
 // showMetadata 显示图片的当前元数据
-func showMetadata(modifier *imagemodify.ImageSHA1Modifier, imagePath string) {
+func showMetadata(modifier *imagemodify.ImageModifier, imagePath string) {
 	fmt.Printf("📋 图片元数据信息: %s\n", imagePath)
 	fmt.Println("" + strings.Repeat("=", 50))
 
@@ -92,7 +92,7 @@ func showMetadata(modifier *imagemodify.ImageSHA1Modifier, imagePath string) {
 }
 
 // modifyMetadataExample 修改元数据示例
-func modifyMetadataExample(modifier *imagemodify.ImageSHA1Modifier, imagePath string) {
+func modifyMetadataExample(modifier *imagemodify.ImageModifier, imagePath string) {
 	fmt.Printf("🔧 修改图片元数据示例: %s\n", imagePath)
 	fmt.Println("" + strings.Repeat("=", 50))
 
@@ -143,7 +143,7 @@ func modifyMetadataExample(modifier *imagemodify.ImageSHA1Modifier, imagePath st
 }
 
 // customMetadataModify 自定义元数据修改
-func customMetadataModify(modifier *imagemodify.ImageSHA1Modifier, imagePath string) {
+func customMetadataModify(modifier *imagemodify.ImageModifier, imagePath string) {
 	fmt.Printf("🎯 自定义元数据修改: %s\n", imagePath)
 	fmt.Println("" + strings.Repeat("=", 50))
 

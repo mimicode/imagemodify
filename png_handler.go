@@ -1,4 +1,4 @@
-package imagesha1
+package imagemodify
 
 import (
 	"bytes"
@@ -9,7 +9,7 @@ import (
 
 // modifyPNGSHA1 修改PNG图片的SHA1值
 // 通过在PNG文件中添加自定义文本块来改变SHA1，不影响图片显示
-func (m *ImageSHA1Modifier) modifyPNGSHA1(data []byte) ([]byte, error) {
+func (m *ImageModifier) modifyPNGSHA1(data []byte) ([]byte, error) {
 	// PNG文件必须以PNG签名开头
 	if len(data) < 8 || !bytes.Equal(data[:8], []byte{0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}) {
 		return nil, fmt.Errorf("不是有效的PNG文件")
@@ -25,7 +25,7 @@ func (m *ImageSHA1Modifier) modifyPNGSHA1(data []byte) ([]byte, error) {
 }
 
 // insertPNGTextChunk 在PNG文件中插入文本块
-func (m *ImageSHA1Modifier) insertPNGTextChunk(data []byte, keyword, text string) []byte {
+func (m *ImageModifier) insertPNGTextChunk(data []byte, keyword, text string) []byte {
 	// PNG块结构：
 	// [4字节长度][4字节类型][数据][4字节CRC]
 
@@ -73,7 +73,7 @@ func (m *ImageSHA1Modifier) insertPNGTextChunk(data []byte, keyword, text string
 }
 
 // findPNGIENDChunk 查找PNG文件中IEND块的位置
-func (m *ImageSHA1Modifier) findPNGIENDChunk(data []byte) int {
+func (m *ImageModifier) findPNGIENDChunk(data []byte) int {
 	// PNG签名是8字节
 	pos := 8
 

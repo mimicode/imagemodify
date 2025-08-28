@@ -1,4 +1,4 @@
-package imagesha1
+package imagemodify
 
 import (
 	"bytes"
@@ -63,11 +63,11 @@ func createTestPNG(path string) error {
 	return png.Encode(file, img)
 }
 
-// TestNewImageSHA1Modifier 测试创建修改器
-func TestNewImageSHA1Modifier(t *testing.T) {
-	modifier := NewImageSHA1Modifier()
+// TestNewImageModifier 测试创建修改器
+func TestNewImageModifier(t *testing.T) {
+	modifier := NewImageModifier()
 	if modifier == nil {
-		t.Fatal("NewImageSHA1Modifier() 返回了 nil")
+		t.Fatal("NewImageModifier() 返回了 nil")
 	}
 }
 
@@ -82,7 +82,7 @@ func TestModifyJPEGSHA1(t *testing.T) {
 		t.Fatalf("创建测试JPEG失败: %v", err)
 	}
 
-	modifier := NewImageSHA1Modifier()
+	modifier := NewImageModifier()
 
 	// 获取原始SHA1
 	originalSHA1, err := modifier.GetImageSHA1(testJPEG)
@@ -124,7 +124,7 @@ func TestModifyPNGSHA1(t *testing.T) {
 		t.Fatalf("创建测试PNG失败: %v", err)
 	}
 
-	modifier := NewImageSHA1Modifier()
+	modifier := NewImageModifier()
 
 	// 获取原始SHA1
 	originalSHA1, err := modifier.GetImageSHA1(testPNG)
@@ -166,7 +166,7 @@ func TestMultipleModifications(t *testing.T) {
 		t.Fatalf("创建测试JPEG失败: %v", err)
 	}
 
-	modifier := NewImageSHA1Modifier()
+	modifier := NewImageModifier()
 
 	// 记录多次修改的SHA1值
 	var sha1Values []string
@@ -201,7 +201,7 @@ func TestUnsupportedFormat(t *testing.T) {
 		t.Fatalf("创建测试文件失败: %v", err)
 	}
 
-	modifier := NewImageSHA1Modifier()
+	modifier := NewImageModifier()
 
 	// 尝试修改不支持的格式
 	_, err = modifier.ModifyImageSHA1(testFile)
@@ -212,11 +212,129 @@ func TestUnsupportedFormat(t *testing.T) {
 
 // TestNonExistentFile 测试不存在的文件
 func TestNonExistentFile(t *testing.T) {
-	modifier := NewImageSHA1Modifier()
+	modifier := NewImageModifier()
 
 	// 尝试修改不存在的文件
 	_, err := modifier.ModifyImageSHA1("non_existent_file.jpg")
 	if err == nil {
 		t.Error("应该返回文件不存在的错误")
+	}
+}
+
+// TestModifyJPEGPixelSHA1 测试JPEG格式像素微调SHA1修改
+func TestModifyJPEGPixelSHA1(t *testing.T) {
+	// 创建临时测试文件
+	tempDir := t.TempDir()
+	testJPEG := filepath.Join(tempDir, "test_pixel.jpg")
+
+	// 创建测试JPEG图片
+	if err := createTestJPEG(testJPEG); err != nil {
+		t.Fatalf("创建测试JPEG失败: %v", err)
+	}
+
+	modifier := NewImageModifier()
+
+	// 获取原始SHA1
+	originalSHA1, err := modifier.GetImageSHA1(testJPEG)
+	if err != nil {
+		t.Fatalf("获取原始SHA1失败: %v", err)
+	}
+
+	// 通过像素微调修改SHA1
+	newSHA1, err := modifier.ModifyImageSHA1ByPixel(testJPEG)
+	if err != nil {
+		t.Fatalf("像素微调修改JPEG SHA1失败: %v", err)
+	}
+
+	// 验证SHA1发生了变化
+	if originalSHA1 == newSHA1 {
+		t.Error("SHA1值未发生变化")
+	}
+
+	// 验证文件仍然是有效的JPEG
+	data, err := os.ReadFile(testJPEG)
+	if err != nil {
+		t.Fatalf("读取修改后的文件失败: %v", err)
+	}
+
+	_, err = jpeg.Decode(bytes.NewReader(data))
+	if err != nil {
+		t.Errorf("修改后的文件不是有效的JPEG: %v", err)
+	}
+}
+
+// TestModifyPNGPixelSHA1 测试PNG格式像素微调SHA1修改
+func TestModifyPNGPixelSHA1(t *testing.T) {
+	// 创建临时测试文件
+	tempDir := t.TempDir()
+	testPNG := filepath.Join(tempDir, "test_pixel.png")
+
+	// 创建测试PNG图片
+	if err := createTestPNG(testPNG); err != nil {
+		t.Fatalf("创建测试PNG失败: %v", err)
+	}
+
+	modifier := NewImageModifier()
+
+	// 获取原始SHA1
+	originalSHA1, err := modifier.GetImageSHA1(testPNG)
+	if err != nil {
+		t.Fatalf("获取原始SHA1失败: %v", err)
+	}
+
+	// 通过像素微调修改SHA1
+	newSHA1, err := modifier.ModifyImageSHA1ByPixel(testPNG)
+	if err != nil {
+		t.Fatalf("像素微调修改PNG SHA1失败: %v", err)
+	}
+
+	// 验证SHA1发生了变化
+	if originalSHA1 == newSHA1 {
+		t.Error("SHA1值未发生变化")
+	}
+
+	// 验证文件仍然是有效的PNG
+	data, err := os.ReadFile(testPNG)
+	if err != nil {
+		t.Fatalf("读取修改后的文件失败: %v", err)
+	}
+
+	_, err = png.Decode(bytes.NewReader(data))
+	if err != nil {
+		t.Errorf("修改后的文件不是有效的PNG: %v", err)
+	}
+}
+
+// TestMultiplePixelModifications 测试多次像素微调产生不同的SHA1
+func TestMultiplePixelModifications(t *testing.T) {
+	// 创建临时测试文件
+	tempDir := t.TempDir()
+	testJPEG := filepath.Join(tempDir, "test_multiple_pixel.jpg")
+
+	// 创建测试JPEG图片
+	if err := createTestJPEG(testJPEG); err != nil {
+		t.Fatalf("创建测试JPEG失败: %v", err)
+	}
+
+	modifier := NewImageModifier()
+
+	// 记录多次修改的SHA1值
+	var sha1Values []string
+
+	for i := 0; i < 3; i++ {
+		newSHA1, err := modifier.ModifyImageSHA1ByPixel(testJPEG)
+		if err != nil {
+			t.Fatalf("第%d次像素微调失败: %v", i+1, err)
+		}
+		sha1Values = append(sha1Values, newSHA1)
+	}
+
+	// 验证每次的SHA1都不相同
+	for i := 0; i < len(sha1Values); i++ {
+		for j := i + 1; j < len(sha1Values); j++ {
+			if sha1Values[i] == sha1Values[j] {
+				t.Errorf("第%d次和第%d次像素微调产生了相同的SHA1: %s", i+1, j+1, sha1Values[i])
+			}
+		}
 	}
 }

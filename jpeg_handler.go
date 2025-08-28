@@ -1,4 +1,4 @@
-package imagesha1
+package imagemodify
 
 import (
 	"bytes"
@@ -8,7 +8,7 @@ import (
 
 // modifyJPEGSHA1 修改JPEG图片的SHA1值
 // 通过在JPEG的Comment段中添加随机数据来改变SHA1，不影响图片显示
-func (m *ImageSHA1Modifier) modifyJPEGSHA1(data []byte) ([]byte, error) {
+func (m *ImageModifier) modifyJPEGSHA1(data []byte) ([]byte, error) {
 	// 解码JPEG图片
 	img, err := jpeg.Decode(bytes.NewReader(data))
 	if err != nil {
@@ -40,7 +40,7 @@ func (m *ImageSHA1Modifier) modifyJPEGSHA1(data []byte) ([]byte, error) {
 }
 
 // insertJPEGComment 在JPEG数据中插入注释段
-func (m *ImageSHA1Modifier) insertJPEGComment(data []byte, comment []byte) []byte {
+func (m *ImageModifier) insertJPEGComment(data []byte, comment []byte) []byte {
 	// JPEG文件格式：
 	// FF D8 (SOI) ... 各种段 ... FF D9 (EOI)
 	// 注释段格式：FF FE [长度高字节] [长度低字节] [注释数据]

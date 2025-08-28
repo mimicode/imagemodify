@@ -1,4 +1,4 @@
-package imagesha1
+package imagemodify
 
 import (
 	"bytes"
@@ -12,7 +12,7 @@ import (
 )
 
 // modifyPNGMetadata 修改PNG图片的文本元数据
-func (m *ImageSHA1Modifier) modifyPNGMetadata(data []byte, metadata *ImageMetadata) ([]byte, error) {
+func (m *ImageModifier) modifyPNGMetadata(data []byte, metadata *ImageMetadata) ([]byte, error) {
 	// PNG文件必须以PNG签名开头
 	if len(data) < 8 || !bytes.Equal(data[:8], []byte{0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}) {
 		return nil, fmt.Errorf("不是有效的PNG文件")
@@ -29,7 +29,7 @@ func (m *ImageSHA1Modifier) modifyPNGMetadata(data []byte, metadata *ImageMetada
 }
 
 // createPNGTextChunks 创建PNG文本块
-func (m *ImageSHA1Modifier) createPNGTextChunks(metadata *ImageMetadata) [][]byte {
+func (m *ImageModifier) createPNGTextChunks(metadata *ImageMetadata) [][]byte {
 	var chunks [][]byte
 
 	// 添加各种元数据作为tEXt块
@@ -69,7 +69,7 @@ func (m *ImageSHA1Modifier) createPNGTextChunks(metadata *ImageMetadata) [][]byt
 }
 
 // createPNGTextChunk 创建单个PNG文本块
-func (m *ImageSHA1Modifier) createPNGTextChunk(keyword, text string) []byte {
+func (m *ImageModifier) createPNGTextChunk(keyword, text string) []byte {
 	// 构造tEXt块数据
 	textData := []byte(keyword)
 	textData = append(textData, 0) // 分隔符
@@ -101,7 +101,7 @@ func (m *ImageSHA1Modifier) createPNGTextChunk(keyword, text string) []byte {
 }
 
 // removeExistingTextChunks 移除现有的文本块
-func (m *ImageSHA1Modifier) removeExistingTextChunks(data []byte) []byte {
+func (m *ImageModifier) removeExistingTextChunks(data []byte) []byte {
 	result := make([]byte, 0, len(data))
 	result = append(result, data[:8]...) // 保留PNG签名
 
@@ -147,7 +147,7 @@ func (m *ImageSHA1Modifier) removeExistingTextChunks(data []byte) []byte {
 }
 
 // insertPNGTextChunks 在PNG文件中插入文本块
-func (m *ImageSHA1Modifier) insertPNGTextChunks(data []byte, chunks [][]byte) []byte {
+func (m *ImageModifier) insertPNGTextChunks(data []byte, chunks [][]byte) []byte {
 	// 查找IEND块的位置
 	iendPos := m.findPNGIENDChunk(data)
 	if iendPos == -1 {
@@ -175,7 +175,7 @@ func (m *ImageSHA1Modifier) insertPNGTextChunks(data []byte, chunks [][]byte) []
 }
 
 // getPNGMetadata 获取PNG图片的文本元数据
-func (m *ImageSHA1Modifier) getPNGMetadata(imagePath string) (*ImageMetadata, error) {
+func (m *ImageModifier) getPNGMetadata(imagePath string) (*ImageMetadata, error) {
 	data, err := os.ReadFile(imagePath)
 	if err != nil {
 		return nil, fmt.Errorf("读取文件失败: %v", err)
@@ -226,7 +226,7 @@ func (m *ImageSHA1Modifier) getPNGMetadata(imagePath string) (*ImageMetadata, er
 }
 
 // parsePNGTextChunk 解析PNG文本块
-func (m *ImageSHA1Modifier) parsePNGTextChunk(data []byte, metadata *ImageMetadata) {
+func (m *ImageModifier) parsePNGTextChunk(data []byte, metadata *ImageMetadata) {
 	// tEXt块格式：关键字\0文本
 	parts := bytes.SplitN(data, []byte{0}, 2)
 	if len(parts) != 2 {
